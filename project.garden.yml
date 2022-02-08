@@ -1,0 +1,16 @@
+# Indicate what kind of config this is.
+kind: Project
+
+# The name of the project.
+name: compose2garden
+
+# A list of environments to configure for the project.
+environments:
+  - # The name of the environment.
+    name: default
+
+
+providers:
+  - # The name of the provider plugin to use.
+    name: local-kubernetes
+
