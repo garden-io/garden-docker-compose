@@ -1,0 +1,13 @@
+kind: Module
+name: mongo
+description: Mongodb for storing todo items
+type: container
+image: mongo:4.2.0
+services:
+  - name: mongo
+    volumes:
+      - name: data
+        containerPath: /data/db
+    ports:
+      - name: db
+        containerPort: 27017

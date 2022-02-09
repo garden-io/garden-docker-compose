@@ -1,0 +1,24 @@
+kind: Module
+name: backend
+description: The backend server.
+type: container
+services:
+  - name: backend
+    devMode:
+      sync:
+        - source: ./
+          target: /usr/src/app
+          mode: "one-way-replica"
+    ports:
+      - name: http
+        containerPort: 3000
+    healthCheck:
+      httpGet:
+        path: /api
+        port: http
+    ingresses:
+      - path: /
+        port: http
+        hostname: backend.${var.base-hostname}
+    dependencies:
+      - mongo

@@ -1,0 +1,25 @@
+kind: Module
+name: frontend
+description: The frontend server and UI components.
+type: container
+services:
+  - name: frontend
+    env:
+      DANGEROUSLY_DISABLE_HOST_CHECK: true
+    devMode:
+      sync:
+        - source: ./
+          target: /usr/src/app
+          mode: "one-way-replica"
+    ports:
+      - name: http
+        containerPort: 3000
+    healthCheck:
+      httpGet:
+        path: /
+        port: http
+    ingresses:
+      - path: /
+        port: http
+    dependencies:
+      - backend
