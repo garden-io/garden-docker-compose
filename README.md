@@ -2,7 +2,7 @@
 
 ## React application with a NodeJS backend and a MongoDB database
 
-This sample app serves as an example of a migration from docker-compose to Garden.
+This sample app serves as an example of migration from docker-compose to Garden.
 It is based on the `react-express-mongodb` example from the [Awesome Compose](https://github.com/docker/awesome-compose) repository.
 
 The docker-compose configuration and source code have been left untouched, with only the Garden configuration files added to the project.
