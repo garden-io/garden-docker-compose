@@ -16,7 +16,7 @@ Project structure:
 │   ...
 ├── docker-compose.yaml
 ├── frontend
-    ...
+│   ...
 │   ├── Dockerfile
 │   ├── frontend.garden.yml
 │   ...
@@ -26,34 +26,6 @@ Project structure:
 └──README.md
 ```
 
-[_docker-compose.yaml_](docker-compose.yaml)
-
-```yaml
-services:
-  frontend:
-    build:
-      context: frontend
-    ...
-    ports:
-      - 3000:3000
-    ...
-  server:
-    container_name: server
-    restart: always
-    build:
-      context: server
-      args:
-        NODE_PORT: 3000
-    ports:
-      - 3000:3000
-    ...
-    depends_on:
-      - mongo
-  mongo:
-    container_name: mongo
-    restart: always
-    ...
-```
 The compose file defines an application with three services `frontend`, `backend` and `db`.
 When deploying the application, docker-compose maps port 3000 of the frontend service container to port 3000 of the host as specified in the file.
 Make sure port 3000 on the host is not already being in use.
