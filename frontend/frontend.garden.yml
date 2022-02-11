@@ -2,14 +2,16 @@ kind: Module
 name: frontend
 description: The frontend server and UI components.
 type: container
+exclude:
+  - node_modules/**/*
 services:
   - name: frontend
     env:
       DANGEROUSLY_DISABLE_HOST_CHECK: true
     devMode:
       sync:
-        - source: ./
-          target: /usr/src/app
+        - source: ./src
+          target: /usr/src/app/src
           mode: "one-way-replica"
     ports:
       - name: http

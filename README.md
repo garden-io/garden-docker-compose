@@ -1,21 +1,34 @@
-## Compose sample application
-### React application with a NodeJS backend and a MongoDB database
+# compose2garden sample application
+
+## React application with a NodeJS backend and a MongoDB database
+
+This sample app serves as an example of a migration from docker-compose to Garden.
+It is based on the `react-express-mongodb` example from the [Awesome Compose](https://github.com/docker/awesome-compose) repository.
+
+The docker-compose configuration and source code have been left untouched, with only the Garden configuration files added to the project.
 
 Project structure:
 ```
 .
 ├── backend
+│   ├── backend.garden.yml
 │   ├── Dockerfile
 │   ...
 ├── docker-compose.yaml
 ├── frontend
-│   ├── ...
-│   └── Dockerfile
-└── README.md
+    ...
+│   ├── Dockerfile
+│   ├── frontend.garden.yml
+│   ...
+│   └── project.garden.yml
+├── mongo
+│   └── mongo.garden.yml
+└──README.md
 ```
 
 [_docker-compose.yaml_](docker-compose.yaml)
-```
+
+```yaml
 services:
   frontend:
     build:
@@ -45,9 +58,77 @@ The compose file defines an application with three services `frontend`, `backend
 When deploying the application, docker-compose maps port 3000 of the frontend service container to port 3000 of the host as specified in the file.
 Make sure port 3000 on the host is not already being in use.
 
-## Deploy with docker-compose
+Garden defines the same services but deploys the application on a local Kubernetes cluster, make sure it's running before deploying.
+The project is configured to create two ingresses from which the services are available:
 
+- `frontend` service: [http://compose2garden.local.app.garden](http://compose2garden.local.app.garden).
+- `backend` service: [http://backend.compose2garden.local.app.garden](http://backend.compose2garden.local.app.garden).
+
+## Deploy the project
+
+### Deploy with garden
+
+> Note: you need to have a running Kubernetes cluster on your local machine.
+
+```sh
+$ garden deploy
+Deploy 🚀 
+
+Using environment default.default
+
+✔ providers                 → Getting status... → Cached
+   ℹ Run with --force-refresh to force a refresh of provider statuses.
+✔ mongo                     → Getting build status for v-4e4b9e4d48... → Already built
+✔ backend                   → Getting build status for v-64f4cdb8df... → Already built
+✔ mongo                     → Deploying version v-5e8e8da229... → Done (took 3.4 sec)
+   ℹ mongo                     → Resources ready
+✔ frontend                  → Getting build status for v-f6dbf8b6ea... → Already built
+✔ backend                   → Deploying version v-f8ca19f295... → Done (took 3.1 sec)
+   ℹ backend                   → Resources ready
+   → Ingress: http://backend.compose2garden.local.app.garden
+✔ frontend                  → Deploying version v-ad031cb91f... → Done (took 25.8 sec)
+   ℹ frontend                  → Resources ready
+   → Ingress: http://compose2garden.local.app.garden
+
+Done! ✔️ 
 ```
+
+#### Start Garden in dev-mode
+
+```sh
+$ garden dev 
+Good morning! Let's get your environment wired up...
+
+Using environment default.default
+
+✔ providers                 → Getting status... → Cached
+   ℹ Run with --force-refresh to force a refresh of provider statuses.
+✔ mongo                     → Getting build status for v-4e4b9e4d48... → Already built
+✔ backend                   → Getting build status for v-64f4cdb8df... → Already built
+✔ frontend                  → Getting build status for v-f6dbf8b6ea... → Already built
+ℹ backend                   → Syncing ./ to /usr/src/app in Deployment/backend (one-way-replica)
+✔ backend                   → Connected to sync target /usr/src/app in Deployment/backend
+✔ backend                   → Completed initial sync from ./ to /usr/src/app in Deployment/backend
+✔ frontend                  → Connected to sync target /usr/src/app/src in Deployment/frontend
+✔ frontend                  → Completed initial sync from ./src to /usr/src/app/src in Deployment/frontend
+✔ mongo                     → Deploying version v-5e8e8da229... → Already deployed
+   → Forward: localhost:27017 → mongo:27017 (db)
+ℹ frontend                  → Syncing ./src to /usr/src/app/src in Deployment/frontend (one-way-replica)
+✔ backend                   → Deploying version v-f8ca19f295... → Already deployed
+   → Ingress: http://backend.compose2garden.local.app.garden
+   → Forward: http://localhost:3000 → backend:3000 (http)
+✔ frontend                  → Deploying version v-ad031cb91f... → Already deployed
+   → Ingress: http://compose2garden.local.app.garden
+   → Forward: http://localhost:60523 → frontend:3000 (http)
+
+🌻  Garden dashboard running at http://localhost:9777
+
+🕑  Waiting for code changes...
+```
+
+### Deploy with docker-compose
+
+```sh
 $ docker-compose up -d
 Creating network "react-express-mongodb_default" with the default driver
 Building frontend
@@ -61,74 +142,3 @@ Creating mongo           ... done
 Creating app             ... done
 ```
 
-## Expected result
-
-Listing containers must show containers running and the port mapping as below:
-```
-$ docker ps
-CONTAINER ID        IMAGE                               COMMAND                  CREATED             STATUS                  PORTS                      NAMES
-06e606d69a0e        react-express-mongodb_server        "docker-entrypoint.s…"   23 minutes ago      Up 23 minutes           0.0.0.0:3000->3000/tcp     server
-ff56585e1db4        react-express-mongodb_frontend      "docker-entrypoint.s…"   23 minutes ago      Up 23 minutes           0.0.0.0:3000->3000/tcp     frontend
-a1f321f06490        mongo:4.2.0                         "docker-entrypoint.s…"   23 minutes ago      Up 23 minutes           0.0.0.0:27017->27017/tcp   mongo
-```
-
-After the application starts, navigate to `http://localhost:3000` in your web browser.
-
-![page](./output.png)
-
-Stop and remove the containers
-```
-$ docker-compose down
-Stopping server   ... done
-Stopping frontend ... done
-Stopping mongo    ... done
-Removing server   ... done
-Removing frontend ... done
-Removing mongo    ... done
-```
-
-##### Explanation of `docker-compose`
-
-__Version__
-
-The first line defines the version of a file. It sounds confusing :confused:. What is meant by version of file ?? 
-
-:pill: The Compose file is a YAML file defining services, networks, and volumes for a Docker application. So it is only a version of describing compose.yaml file. There are several versions of the Compose file format – 1, 2, 2.x, and 3.x.
-
-__Services__
-
-Our main goal to create a containers, it starts from here. As you can see there are three services(Docker images): 
-- First is __frontend__ 
-- Second is __server__ which is __backend - Express(NodeJS)__. I used a name server here, it's totally on you to name it __backend__.
-- Third is __mongo__ which is db __MongoDB__.
-
-##### Service app (backend - NodeJS)
-
-We make image of app from our `Dockerfile`, explanation below.
-
-__Explanation of service server__
-
-- Defining a **nodejs** service as __server__.
-- We named our **node server** container service as **server**. Assigning a name to the containers makes it easier to read when there are lot of containers on a machine, it can also avoid randomly generated container names. (Although in this case, __container_name__ is also __server__, this is merely personal preference, the name of the service and container do not have to be the same.) 
-- Docker container starts automatically if its fails.
-- Building the __server__ image using the Dockerfile from the current directory and passing an argument to the
-backend(server) `DockerFile`.
-- Mapping the host port to the container port.
-
-##### Service mongo
-
-We add another service called **mongo** but this time instead of building it from `DockerFile` we write all the instruction here directly. We simply pull down the standard __mongo image__ from the [DockerHub](https://hub.docker.com/) registry as we have done it for Node image.
-
-__Explanation of service mongo__
-
-- Defining a **mongodb** service as __mongo__.
-- Pulling the mongo 4.2.0 image image again from [DockerHub](https://hub.docker.com/).
-- Mount our current db directory to container. 
-- For persistent storage, we mount the host directory ( just like I did it in **Node** image inside `DockerFile` to reflect the changes) `/data` ( you need to create a directory in root of your project in order to save changes to locally as well) to the container directory `/data/db`, which was identified as a potential mount point in the `mongo Dockerfile` we saw earlier.
-- Mounting volumes gives us persistent storage so when starting a new container, Docker Compose will use the volume of any previous containers and copy it to the new container, ensuring that no data is lost.
-- Finally, we link/depends_on the app container to the mongo container so that the mongo service is reachable from the app service.
-- In last mapping the host port to the container port.
-
-:key: `If you wish to check your DB changes on your local machine as well. You should have installed MongoDB locally, otherwise you can't access your mongodb service of container from host machine.` 
-
-:white_check_mark: You should check your __mongo__ version is same as used in image. You can see the version of __mongo__ image in `docker-compose `file, I used __image: mongo:4.2.0__. If your mongo db version on your machine is not same then furst you have to updated your  local __mongo__ version in order to works correctly.
