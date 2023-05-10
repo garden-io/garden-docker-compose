@@ -1,11 +1,12 @@
 kind: Project
+apiVersion: garden.io/v1
 name: compose2garden
 
-# # A list of environments to configure for the project.
+# A list of environments to configure for the project.
 environments:
   - name: default
     variables:
-      base-hostname: compose2garden.local.app.garden
+      base-hostname: compose2garden.local.demo.garden
 
 providers:
   - name: local-kubernetes

@@ -1,27 +1,35 @@
-kind: Module
+kind: Build
+apiVersion: garden.io/v1
 name: frontend
-description: The frontend server and UI components.
+description: The frontend server and UI components image
 type: container
 exclude:
   - node_modules/**/*
-services:
-  - name: frontend
-    env:
-      DANGEROUSLY_DISABLE_HOST_CHECK: true
-    devMode:
-      sync:
-        - source: ./src
-          target: /usr/src/app/src
-          mode: "one-way-replica"
-    ports:
-      - name: http
-        containerPort: 3000
-    healthCheck:
-      httpGet:
-        path: /
-        port: http
-    ingresses:
-      - path: /
-        port: http
-    dependencies:
-      - backend
+
+---
+kind: Deploy
+apiVersion: garden.io/v1
+name: frontend
+description: The frontend server and UI components container
+type: container
+build: frontend
+dependencies:
+  - deploy.backend
+spec:
+  env:
+    DANGEROUSLY_DISABLE_HOST_CHECK: true
+  sync:
+    paths:
+      - source: ./src
+        target: /usr/src/app/src
+        mode: "one-way-replica"
+  ports:
+    - name: http
+      containerPort: 3000
+  healthCheck:
+    httpGet:
+      path: /
+      port: http
+  ingresses:
+    - path: /
+      port: http

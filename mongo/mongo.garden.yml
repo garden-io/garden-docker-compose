@@ -1,13 +1,14 @@
-kind: Module
-description: Mongodb for storing todo items
+kind: Deploy
+apiVersion: garden.io/v1
+description: MongoDB for storing todo items
 type: container
 name: mongo
-image: mongo:4.2.0
-services:
-  - name: mongo
-    volumes:
-      - name: data
-        containerPath: /data/db
-    ports:
-      - name: db
-        containerPort: 27017
+
+spec:
+  image: mongo:4.2.0
+  volumes:
+    - name: data
+      containerPath: /data/db
+  ports:
+    - name: db
+      containerPort: 27017
