@@ -27,7 +27,7 @@ Project structure:
 ```
 
 The compose file defines an application with three services `frontend`, `backend` and `db`.
-When deploying the application, docker-compose maps port 3000 of the frontend service container to port 3000 of the host as specified in the file.
+When deploying the application, docker-compose maps port `3000` of the frontend service container to port `3000` of the host as specified in the file.
 Make sure port 3000 on the host is not already being in use.
 
 Garden defines the same services but deploys the application on a local Kubernetes cluster, make sure it's running before deploying.
@@ -65,10 +65,10 @@ Using environment default.default
 Done! ✔️ 
 ```
 
-#### Start Garden in dev-mode
+#### Start Garden in sync mode
 
 ```sh
-$ garden dev 
+$ garden deploy --sync
 Good morning! Let's get your environment wired up...
 
 Using environment default.default
@@ -92,8 +92,6 @@ Using environment default.default
 ✔ frontend                  → Deploying version v-ad031cb91f... → Already deployed
    → Ingress: http://compose2garden.local.app.garden
    → Forward: http://localhost:60523 → frontend:3000 (http)
-
-🌻  Garden dashboard running at http://localhost:9777
 
 🕑  Waiting for code changes...
 ```

@@ -1,24 +1,32 @@
-kind: Module
+kind: Build
+apiVersion: garden.io/v1
 name: backend
-description: The backend server.
+description: The backend server image
 type: container
-services:
-  - name: backend
-    devMode:
-      sync:
-        - source: ./
-          target: /usr/src/app
-          mode: "one-way-replica"
-    ports:
-      - name: http
-        containerPort: 3000
-    healthCheck:
-      httpGet:
-        path: /api
-        port: http
-    ingresses:
-      - path: /
-        port: http
-        hostname: backend.${var.base-hostname}
-    dependencies:
-      - mongo
+
+---
+kind: Deploy
+apiVersion: garden.io/v1
+name: backend
+description: The backend server container
+type: container
+build: backend
+dependencies:
+  - deploy.mongo
+spec:
+  sync:
+    paths:
+      - source: ./
+        target: /usr/src/app
+        mode: "one-way-replica"
+  ports:
+    - name: http
+      containerPort: 3000
+  healthCheck:
+    httpGet:
+      path: /api
+      port: http
+  ingresses:
+    - path: /
+      port: http
+      hostname: backend.${var.base-hostname}
